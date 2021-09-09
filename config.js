@@ -11,6 +11,7 @@ const fs = require('fs');
  * exampleMode: boolean,
  * tokenSecret: string,
  * tokenExpires: number,
+ * wechatTokenFile: string,
  * }}
  */
 exports.application = function () {
@@ -28,6 +29,21 @@ exports.application = function () {
 exports.database = function () {
     try {
         return JSON.parse(fs.readFileSync('./config/database.config.json'));
+    } catch (_) {
+        return {};
+    }
+}
+
+/**
+ * 
+ * @returns {{
+ *  appid: string, 
+ *  appsecret: string,
+ * }}
+ */
+exports.token = function () {
+    try {
+        return JSON.parse(fs.readFileSync('./config/test.wechat.config.json'));
     } catch (_) {
         return {};
     }
