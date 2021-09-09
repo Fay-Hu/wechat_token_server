@@ -2,6 +2,7 @@ const CONFIG = require('../../config');
 const TOKEN = CONFIG.token;
 const FileService = require('./file_service');
 const AccessToken = require('../model/access_token');
+const JSApiTicket = require('../model/jsapi_ticket');
 
 const fs = require('fs');
 const path = require('path');
@@ -12,6 +13,8 @@ const storePath = path.resolve(CONFIG.application().wechatTokenFile);
 
 // ?grant_type=client_credential&appid=APPID&secret=APPSECRET
 const getAccessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token";
+
+const getJSApiTicketUrl = "https://api.weixin.qq.com/cgi-bin/ticket/getticket";
 
 /**
  * 获取 access_token
@@ -107,9 +110,58 @@ function readAccessToken() {
     }
 }
 
+/**
+ * 获取 jsapi_ticket
+ * @param {boolean} forceupdate  强制获取新的 jsapi_ticket，默认 false
+ * @returns 
+ */
+function getJSApiTicket(forceupdate = false) {
+    return new Promise((resolve, reject) => {
+        updateJsApiTicket().then((result) => {
+            resolve(result)
+        }).catch((err) => {
+            reject(err)
+        });
+    })
+}
+
+/**
+ * 更新并返回 jsapi_ticket
+ * @returns {Promise<JSApiTicket>}
+ */
+function updateJsApiTicket() {
+    return new Promise((resolve, reject) => {
+        getAccessToken().then((result) => {
+            console.log('access_token: %o', result.access_token);
+            axios.get(getJSApiTicketUrl, {
+                params: {
+                    access_token: result.access_token,
+                    type: "jsapi"
+                }
+            }).then((val) => {
+                console.log('url: ' + val.config.url);
+                /** @type {JSApiTicket} */
+                let data = val.data;
+                console.log(data);
+                if (data.errorcode) {   // 40001: access_token 无效或已过期
+                    reject(data);
+                } else {
+                    resolve(data);
+                }
+            }).catch((err) => {
+                reject(err);
+            });
+        }).catch((error) => {
+            reject(error);
+        });
+    })
+}
+
 module.exports = {
     getAccessToken: getAccessToken,
     updateAccessToken: updateAccessToken,
     storeAccessToken: storeAccessToken,
     readAccessToken: readAccessToken,
+    getJSApiTicket: getJSApiTicket,
+    updateJsApiTicket: updateJsApiTicket,
 }

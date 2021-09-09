@@ -6,10 +6,41 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>测试页-调用微信SDK扫描二维码</title>
+    <link rel="stylesheet" href="/stylesheets/global.css">
 </head>
 
 <body>
-    
+    <div class="container">
+        <button id="scanqrbtn">点我扫码</button>
+    </div>
 </body>
+<script src="javascripts/jweixin-1.6.0.js"></script>
+<script>
+    window.addEventListener('load', init);
+
+    function configWX() {
+        if (wx) {
+            console.log(wx.config)
+            wx.config({
+                debug: true,
+                appId: '', // 必填，公众号的唯一标识
+                timestamp: 0, // 必填，生成签名的时间戳
+                nonceStr: '', // 必填，生成签名的随机串
+                signature: '',// 必填，签名
+                jsApiList: ['scanQRCode'] // 必填，需要使用的JS接口列表
+            })
+        } else {
+            alert('微信JSSDK未成功引入！')
+        }
+    }
+
+    function init() {
+        configWX();
+        let btn = document.getElementById('scanqrbtn');
+        btn.addEventListener('click', function () {
+
+        })
+    }
+</script>
 
 </html>

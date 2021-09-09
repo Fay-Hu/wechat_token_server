@@ -21,4 +21,18 @@ router.get('/access_token', function (req, res, next) {
     })
 })
 
+router.get('/jsapi_ticket', function (req, res, next) {
+    let { force } = req.query;
+    if (force) {
+        if (force === "0") force = false;
+        else if (force === "false") force = false;
+    }
+    console.log('[/jsapi_ticket] force=%o', force);
+    TokenService.getJSApiTicket(force).then(val => {
+        res.send(new ReqBody(1, val));
+    }).catch(err => {
+        res.send(new ReqBody(0, null, err));
+    })
+})
+
 module.exports = router;
