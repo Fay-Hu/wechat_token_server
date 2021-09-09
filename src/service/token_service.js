@@ -77,40 +77,6 @@ function updateAccessToken() {
 }
 
 /**
- * 将 access_token 存储到文件中
- * @param {string} jsonString 对象JSON化的字符串
- * @returns 
- */
-function storeAccessToken(jsonString) {
-    console.log('|| Write to storePath: ' + storePath);
-    if (fs.existsSync(storePath)) {
-        fs.writeFileSync(storePath, jsonString);
-        return true;
-    } else if (FileService.mkdirsSync(path.dirname(storePath))) {
-        fs.writeFileSync(storePath, jsonString);
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
- * 读取文件中保存的 access_token
- * @returns {AccessToken}
- */
-function readAccessToken() {
-    console.log('|| Read from storePath: ' + storePath);
-    if (fs.existsSync(storePath)) {
-        console.log('|| 找到了wechatToken存储文件')
-        return JSON.parse(fs.readFileSync(storePath));
-    }
-    else {
-        console.log('|| 未找到wechatToken存储文件')
-        return null;
-    }
-}
-
-/**
  * 获取 jsapi_ticket
  * @param {boolean} forceupdate  强制获取新的 jsapi_ticket，默认 false
  * @returns 
@@ -156,6 +122,82 @@ function updateJsApiTicket() {
         });
     })
 }
+
+/**
+ * 将 access_token 存储到文件中
+ * @param {string} jsonString 对象JSON化的字符串
+ * @returns 
+ */
+function storeAccessToken(jsonString) {
+    console.log('|| Write to storePath: ' + storePath);
+    if (fs.existsSync(storePath)) {
+        fs.writeFileSync(storePath, jsonString);
+        return true;
+    } else if (FileService.mkdirsSync(path.dirname(storePath))) {
+        fs.writeFileSync(storePath, jsonString);
+        return true;
+    } else {
+        return false;
+    }
+}
+/**
+ * 读取文件中保存的 access_token
+ * @returns {AccessToken}
+ */
+function readAccessToken() {
+    console.log('|| Read from storePath: ' + storePath);
+    if (fs.existsSync(storePath)) {
+        console.log('|| 找到了wechatToken存储文件')
+        return JSON.parse(fs.readFileSync(storePath));
+    }
+    else {
+        console.log('|| 未找到wechatToken存储文件')
+        return null;
+    }
+}
+
+/**
+ * 写入文件缓存
+ * @param {object} data 值
+ * @param {string} [propName] 属性名
+ * @returns 
+ */
+function storeToCacheFile(data, propName) {
+    console.log('|| Write to storePath: %s', storePath);
+    if (fs.existsSync(storePath) || FileService.mkdirsSync(path.dirname(storePath))) {
+        let storage = readFromCacheFile() || {};    // 为空，则默认写为空对象
+        if (propName)
+            storage[propName] = data;
+        else
+            storage = data;
+        fs.writeFileSync(storePath, JSON.stringify(storage, null, '\t'));   // 美化一下
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * 读取文件缓存
+ * @param {string} [propName] 要读取的属性名，为空时读取全部
+ * @returns
+ */
+function readFromCacheFile(propName) {
+    console.log('|| Read from storePath: ' + storePath);
+    if (fs.existsSync(storePath)) {
+        console.log('|| 缓存文件存在')
+        let data = JSON.parse(fs.readFileSync(storePath));
+        if (propName)
+            return data[propName];
+        else
+            return data;
+    }
+    else {
+        console.log('|| 未找到缓存文件')
+        return null;
+    }
+}
+
 
 module.exports = {
     getAccessToken: getAccessToken,
