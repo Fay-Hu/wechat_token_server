@@ -5,6 +5,7 @@
   "logDirectory": "log",
   "frontAddress": "http://localhost:8500",
   "fileRoot": "../uploadFiles",
+  "wechatTokenFile": "wechatToken.json",
   "tokenSecret": "it's fine if you no more love me",
   "tokenExpires": 86400
 }
