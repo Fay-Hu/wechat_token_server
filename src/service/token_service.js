@@ -66,7 +66,7 @@ function updateAccessToken() {
                 reject(data)
             } else {
                 data.timestamp = timestamp;
-                storeAccessToken(JSON.stringify(data));
+                storeAccessToken(JSON.stringify(data, null, "\t"));
                 resolve(data);
             }
         }).catch(err => {
