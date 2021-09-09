@@ -8,8 +8,14 @@ router.get('/', function (req, res, next) {
 })
 
 router.get('/access_token', function (req, res, next) {
-    TokenService.getAccessToken().then(val => {
-        res.send(new ReqBody(1, res));
+    let { force } = req.query;
+    if (force) {
+        if (force === "0") force = false;
+        else if (force === "false") force = false;
+    }
+    console.log('[/access_token] force=%o', force);
+    TokenService.getAccessToken(force).then(val => {
+        res.send(new ReqBody(1, val));
     }).catch(err => {
         res.send(new ReqBody(0, null, err));
     })

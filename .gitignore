@@ -4,3 +4,4 @@ log/
 */node_modules.zip
 database.config.json
 MP_verify_*.txt
+wechatToken.json

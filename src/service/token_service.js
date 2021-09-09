@@ -1,29 +1,39 @@
 const CONFIG = require('../../config');
 const TOKEN = CONFIG.token;
 const FileService = require('./file_service');
+const AccessToken = require('../model/access_token');
 
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios').default; // 为了获取类型推断
+const dayjs = require('dayjs');
 
-const storePath = path.resolve('../../', CONFIG.application().wechatTokenFile);
+const storePath = path.resolve(CONFIG.application().wechatTokenFile);
 
 // ?grant_type=client_credential&appid=APPID&secret=APPSECRET
 const getAccessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token";
 
 /**
- * 获取access_token
- * @returns {Promise<{access_token:string,expires_in:number,timestamp:number}>}
+ * 获取 access_token
+ * @param {boolean} forceUpdate 强制获取新的access_token，默认 false
+ * @returns {Promise<AccessToken>}
  */
-function getAccessToken() {
+function getAccessToken(forceUpdate = false) {
     return new Promise((resolve, reject) => {
-        /** @type {{access_token:string,expires_in:number,timestamp:number}} */
-        let token = readAccessToken();
         let now = new Date().getTime();
+        let token = null;
+        if (!forceUpdate) {
+            token = readAccessToken();
+        } else {
+            console.log('|| 强制更新 access_token')
+        }
         // access_token 已存储在文件中，且未过期
-        if (token && token.expires_in && token.timestamp && now < token.timestamp + token.expires_in) {
+        if (token && token.expires_in && token.timestamp && now < token.timestamp + token.expires_in * 1000) {
+            console.log('|| access_Token 尚未过期! 过期时间: %s', dayjs(token.timestamp + token.expires_in * 1000).format(("YYYY-MM-DD HH:mm:ss")));
             resolve(token);
         } else {
+            if (token && token.timestamp)
+                console.log('|| access_Token 已过期! 上次获取时间: %s', dayjs(token.timestamp).format("YYYY-MM-DD HH:mm:ss"));
             updateAccessToken().then(val => {
                 resolve(val)
             }).catch(err => {
@@ -34,8 +44,8 @@ function getAccessToken() {
 }
 
 /**
- * 更新access_token
- * @returns {Promise<{access_token:string,expires_in:number,timestamp:number}>}
+ * 更新并返回 access_token
+ * @returns {Promise<AccessToken>}
  */
 function updateAccessToken() {
     return new Promise((resolve, reject) => {
@@ -47,10 +57,15 @@ function updateAccessToken() {
                 secret: TOKEN().appsecret,
             }
         }).then(res => {
-            console.log(res);
-            res.timestamp = timestamp;
-            storeAccessToken(res);
-            resolve(res)
+            let data = res.data;
+            console.log(data);
+            if (data.errcode) { // 微信返回错误码
+                reject(data)
+            } else {
+                data.timestamp = timestamp;
+                storeAccessToken(JSON.stringify(data));
+                resolve(data);
+            }
         }).catch(err => {
             console.log(err);
             reject(err);
@@ -59,12 +74,12 @@ function updateAccessToken() {
 }
 
 /**
- * 将AccessToken存储到文件中
+ * 将 access_token 存储到文件中
  * @param {string} jsonString 对象JSON化的字符串
  * @returns 
  */
 function storeAccessToken(jsonString) {
-    console.log('storePath：' + storePath);
+    console.log('|| Write to storePath: ' + storePath);
     if (fs.existsSync(storePath)) {
         fs.writeFileSync(storePath, jsonString);
         return true;
@@ -77,14 +92,19 @@ function storeAccessToken(jsonString) {
 }
 
 /**
- * 读取文件中保存的AccessToken
- * @returns 
+ * 读取文件中保存的 access_token
+ * @returns {AccessToken}
  */
 function readAccessToken() {
-    console.log('storePath：' + storePath);
-    if (fs.existsSync(storePath))
+    console.log('|| Read from storePath: ' + storePath);
+    if (fs.existsSync(storePath)) {
+        console.log('|| 找到了wechatToken存储文件')
         return JSON.parse(fs.readFileSync(storePath));
-    else return null;
+    }
+    else {
+        console.log('|| 未找到wechatToken存储文件')
+        return null;
+    }
 }
 
 module.exports = {
