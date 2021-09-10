@@ -4,13 +4,19 @@ var router = express.Router();
 var apiRouter = require('./api');
 router.use('/api', apiRouter);
 
+const TokenService = require('../src/service/token_service');
+
 /* GET home page. */
 router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
 router.get('/test', function (req, res, next) {
-  res.render('scanqr');
+  TokenService.getSignature('http://localhost:8523/test').then(data => {
+    res.render('scanqr', data);
+  }).catch(err => {
+    res.render('error', err)
+  })
 })
 
 module.exports = router;

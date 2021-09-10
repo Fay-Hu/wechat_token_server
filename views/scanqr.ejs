@@ -23,22 +23,49 @@
             console.log(wx.config)
             wx.config({
                 debug: true,
-                appId: '', // 必填，公众号的唯一标识
-                timestamp: 0, // 必填，生成签名的时间戳
-                nonceStr: '', // 必填，生成签名的随机串
-                signature: '',// 必填，签名
+                appId: '<%= appId%>', // 必填，公众号的唯一标识
+                timestamp: parseInt('<%= timestamp%>'), // 必填，生成签名的时间戳
+                nonceStr: '<%= noncestr%>', // 必填，生成签名的随机串
+                signature: '<%= signature%>',// 必填，签名
                 jsApiList: ['scanQRCode'] // 必填，需要使用的JS接口列表
+            })
+            wx.ready(function () {
+                // config 信息验证后执行此方法，所有接口调用必须在config执行之后
+                console.log('wx is ready!')
+            })
+            wx.error(function (res) {
+                console.log('wx with error: %o', res)
             })
         } else {
             alert('微信JSSDK未成功引入！')
         }
     }
 
+    function startScan() {
+        return new Promise((resolve, reject) => {
+            wx.scanQRCode({
+                needResult: 0,
+                scanType: ['qrCode'],
+                success: function (res) {
+                    console.log(res);
+                    resolve(res.resultStr);
+                }
+            });
+        })
+    }
+
     function init() {
         configWX();
         let btn = document.getElementById('scanqrbtn');
         btn.addEventListener('click', function () {
-
+            alert('点击了扫码按钮！');
+            startScan().then((result) => {
+                console.log('扫码结果: %o', result)
+                alert(result)
+            }).catch((err) => {
+                console.log('扫码错误: %o', err)
+                alert(err)
+            });
         })
     }
 </script>

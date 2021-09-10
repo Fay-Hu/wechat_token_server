@@ -20,6 +20,10 @@ const sha1 = (content) => encrypt('sha1', content)
  * 获取 uuid（v4）去掉横杠，刚好32位
  * @returns {string}
  */
-const nonceStr = () => uuidV4().replace('-', '')
+const nonceStr = () => {
+    let newStr = uuidV4().replace(/-/g, "a");
+    console.log('nonceStr: ' + newStr);
+    return newStr;
+}
 
 module.exports = { encrypt, sha1, nonceStr }
