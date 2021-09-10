@@ -12,7 +12,7 @@ router.get('/', function (req, res, next) {
 });
 
 router.get('/test', function (req, res, next) {
-  TokenService.getSignature('http://localhost:8523/test').then(data => {
+  TokenService.getSignature('http://token.neiguiyin.com/test').then(data => {
     res.render('scanqr', data);
   }).catch(err => {
     res.render('error', err)
