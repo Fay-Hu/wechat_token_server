@@ -35,4 +35,18 @@ router.get('/jsapi_ticket', function (req, res, next) {
     })
 })
 
+router.post('/signature', function (req, res, next) {
+    let { url } = req.body;
+    console.log('[/signature] url = %o', url);
+    if (!url || !url.trim()) {
+        res.send(new ReqBody(0, null, 'param url is empty'))
+        return;
+    }
+    TokenService.getSignature(url).then(val => {
+        res.send(new ReqBody(1, val));
+    }).catch(err => {
+        res.send(new ReqBody(0, null, err));
+    })
+})
+
 module.exports = router;

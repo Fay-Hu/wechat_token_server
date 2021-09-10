@@ -3,6 +3,8 @@ const TOKEN = CONFIG.token;
 const FileService = require('./file_service');
 const AccessToken = require('../model/access_token');
 const JSApiTicket = require('../model/jsapi_ticket');
+const CryptoService = require('./crypto_service');
+const SignatureConfig = require('../model/signature_config');
 
 const fs = require('fs');
 const path = require('path');
@@ -79,7 +81,7 @@ function updateAccessToken() {
 /**
  * 获取 jsapi_ticket
  * @param {boolean} forceUpdate  强制获取新的 jsapi_ticket，默认 false
- * @returns 
+ * @returns {Promise<JSApiTicket>}
  */
 function getJSApiTicket(forceUpdate = false) {
     return new Promise((resolve, reject) => {
@@ -215,12 +217,34 @@ function readFromCacheFile(propName) {
     }
 }
 
+/**
+ * 获取签名，nonceStr 不长于32位
+ * @param {string} url 需要用签名的网址
+ * @returns {Promise<SignatureConfig>}
+ */
+function getSignature(url) {
+    return new Promise((resolve, reject) => {
+        getJSApiTicket().then((result) => {
+            let jsapi_ticket = result.ticket;
+            let noncestr = CryptoService.nonceStr();
+            let timestamp = new Date().getTime();
+            let str = `jsapi_ticket=${jsapi_ticket}&noncestr=${noncestr}&timestamp=${timestamp}&url=${url}`;
+            let signature = CryptoService.sha1(str);
+            let sObj = new SignatureConfig(jsapi_ticket, noncestr, timestamp, url, signature, TOKEN().appid);
+            resolve(sObj);
+        }).catch((err) => {
+            reject(err);
+        });
+    })
+}
+
 
 module.exports = {
-    getAccessToken: getAccessToken,
-    updateAccessToken: updateAccessToken,
-    storeAccessToken: storeAccessToken,
-    readAccessToken: readAccessToken,
-    getJSApiTicket: getJSApiTicket,
-    updateJsApiTicket: updateJsApiTicket,
+    getAccessToken,
+    updateAccessToken,
+    storeAccessToken,
+    readAccessToken,
+    getJSApiTicket,
+    updateJsApiTicket,
+    getSignature,
 }
