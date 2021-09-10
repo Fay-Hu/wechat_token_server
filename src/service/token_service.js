@@ -66,7 +66,7 @@ function updateAccessToken() {
                 reject(data)
             } else {
                 data.timestamp = timestamp;
-                storeAccessToken(JSON.stringify(data, null, "\t"));
+                storeAccessToken(data);
                 resolve(data);
             }
         }).catch(err => {
@@ -78,16 +78,31 @@ function updateAccessToken() {
 
 /**
  * 获取 jsapi_ticket
- * @param {boolean} forceupdate  强制获取新的 jsapi_ticket，默认 false
+ * @param {boolean} forceUpdate  强制获取新的 jsapi_ticket，默认 false
  * @returns 
  */
-function getJSApiTicket(forceupdate = false) {
+function getJSApiTicket(forceUpdate = false) {
     return new Promise((resolve, reject) => {
-        updateJsApiTicket().then((result) => {
-            resolve(result)
-        }).catch((err) => {
-            reject(err)
-        });
+        let now = new Date().getTime();
+        let ticket = null;
+        if (!forceUpdate) {
+            ticket = readJSApiTicket();
+        } else {
+            console.log('|| 强制更新 jsapi_ticket')
+        }
+        // access_token 已存储在文件中，且未过期
+        if (ticket && ticket.expires_in && ticket.timestamp && now < ticket.timestamp + ticket.expires_in * 1000) {
+            console.log('|| jsapi_ticket 尚未过期! 过期时间: %s', dayjs(ticket.timestamp + ticket.expires_in * 1000).format(("YYYY-MM-DD HH:mm:ss")));
+            resolve(ticket);
+        } else {
+            if (ticket && ticket.timestamp)
+                console.log('|| jsapi_ticket 已过期! 上次获取时间: %s', dayjs(ticket.timestamp).format("YYYY-MM-DD HH:mm:ss"));
+            updateJsApiTicket().then(val => {
+                resolve(val)
+            }).catch(err => {
+                reject(err)
+            })
+        }
     })
 }
 
@@ -99,6 +114,7 @@ function updateJsApiTicket() {
     return new Promise((resolve, reject) => {
         getAccessToken().then((result) => {
             console.log('access_token: %o', result.access_token);
+            let timestamp = new Date().getTime();
             axios.get(getJSApiTicketUrl, {
                 params: {
                     access_token: result.access_token,
@@ -112,6 +128,8 @@ function updateJsApiTicket() {
                 if (data.errorcode) {   // 40001: access_token 无效或已过期
                     reject(data);
                 } else {
+                    data.timestamp = timestamp;
+                    storeJSApiTicket(data);
                     resolve(data);
                 }
             }).catch((err) => {
@@ -125,35 +143,34 @@ function updateJsApiTicket() {
 
 /**
  * 将 access_token 存储到文件中
- * @param {string} jsonString 对象JSON化的字符串
+ * @param {AccessToken} data access_token 对象
  * @returns 
  */
-function storeAccessToken(jsonString) {
-    console.log('|| Write to storePath: ' + storePath);
-    if (fs.existsSync(storePath)) {
-        fs.writeFileSync(storePath, jsonString);
-        return true;
-    } else if (FileService.mkdirsSync(path.dirname(storePath))) {
-        fs.writeFileSync(storePath, jsonString);
-        return true;
-    } else {
-        return false;
-    }
+function storeAccessToken(data) {
+    return storeToCacheFile(data, 'AccessToken');
 }
 /**
  * 读取文件中保存的 access_token
  * @returns {AccessToken}
  */
 function readAccessToken() {
-    console.log('|| Read from storePath: ' + storePath);
-    if (fs.existsSync(storePath)) {
-        console.log('|| 找到了wechatToken存储文件')
-        return JSON.parse(fs.readFileSync(storePath));
-    }
-    else {
-        console.log('|| 未找到wechatToken存储文件')
-        return null;
-    }
+    return readFromCacheFile('AccessToken');
+}
+
+/**
+ * 将 jsapi_ticket 存储到文件中
+ * @param {JSApiTicket} data jsapi_ticket 对象
+ * @returns 
+ */
+function storeJSApiTicket(data) {
+    return storeToCacheFile(data, 'JSApiTicket');
+}
+/**
+ * 读取文件中保存的 jsapi_ticket
+ * @returns {JSApiTicket}
+ */
+function readJSApiTicket() {
+    return readFromCacheFile('JSApiTicket');
 }
 
 /**
