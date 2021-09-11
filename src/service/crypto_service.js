@@ -21,7 +21,7 @@ const sha1 = (content) => encrypt('sha1', content)
  * @returns {string}
  */
 const nonceStr = () => {
-    let newStr = uuidV4().replace(/-/g, "a");
+    let newStr = uuidV4().replace(/-/g, "a").substr(0, 32);
     console.log('nonceStr: ' + newStr);
     return newStr;
 }
