@@ -76,9 +76,10 @@
 
     window.startScan = startScan;
     window.addEventListener('message', event => {
-    // IMPORTANT: check the origin of the data!
-    startScan();
-});
+        // IMPORTANT: check the origin of the data!
+        console.log('message', event)
+        startScan();
+    });
 </script>
 
 </html>
