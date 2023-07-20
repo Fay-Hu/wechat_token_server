@@ -12,13 +12,13 @@
 <body>
     <div class="container">
         <button id="scanqrbtn">点我扫码</button>
-        <iframe title="" id="iframe" src="http://auth.vidocube.com/"/>
+        <iframe title="" id="iframe" src="http://auth.vidocube.com/"></iframe>
     </div>
 </body>
 <script src="javascripts/jweixin-1.6.0.js"></script>
 <script>
     // import * as TOOLS from 'javascript/tools.js';
-    // window.addEventListener('load', init);
+    window.addEventListener('load', init);
 
     function configWX() {
         if (wx) {
@@ -81,7 +81,6 @@
     //     alert('message')
     //     startScan();
     // });
-    init();
     window.startScan = startScan;
 </script>
 
