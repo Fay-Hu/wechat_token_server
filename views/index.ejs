@@ -4,14 +4,14 @@
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <script>
-      window.addEventListener('message', event => {
-        // IMPORTANT: check the origin of the data!
-        console.log('message', event)
-      });
+      setTimeout(() => {
+        document.getElementById("iframe").contentWindow.postMessage(`scaneQr:123`, 'http://auth.vidocube.com/')
+      }, 3000)
     </script>
   </head>
   <body>
     <h1><%= title %></h1>
     <p>Welcome to <%= title %></p>
+    <iframe title="" id="iframe" src="http://auth.vidocube.com/"></iframe>
   </body>
 </html>

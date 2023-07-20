@@ -7,6 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>测试页-调用微信SDK扫描二维码</title>
     <link rel="stylesheet" href="/stylesheets/global.css">
+    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+    <script>
+    // VConsole will be exported to `window.VConsole` by default.
+    var vConsole = new window.VConsole();
+    </script>
 </head>
 
 <body>
@@ -36,7 +41,7 @@
                 console.log('wx is ready!')
                 // alert('wx is ready!')
 
-                window.startScan();
+                // window.startScan();
             })
             wx.error(function (res) {
                 console.log('wx with error: ' + res)
@@ -50,7 +55,7 @@
     function startScan() {
         return new Promise((resolve, reject) => {
             wx.scanQRCode({
-                needResult: 0,
+                needResult: 1,
                 scanType: ['qrCode'],
                 success: function (res) {
                     console.log(res);
@@ -68,7 +73,7 @@
             alert('点击了扫码按钮！');
             startScan().then((result) => {
                 console.log('扫码结果: %o', result)
-                document.getElementById("iframe").postMessage(`scaneQr:result`, 'http://vidocube.com/test')
+                document.getElementById("iframe").contentWindow.postMessage(`scaneQr:${result}`, 'http://auth.vidocube.com/')
             }).catch((err) => {
                 console.log('扫码错误: %o', err)
                 alert(err)
