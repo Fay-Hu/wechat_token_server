@@ -15,6 +15,7 @@ router.get('/test', function (req, res, next) {
   TokenService.getSignature('http://token.neiguiyin.com/test').then(data => {
     res.render('scanqr', data);
   }).catch(err => {
+    console.log(err)
     res.render('error', err)
   })
 })
