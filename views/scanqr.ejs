@@ -74,12 +74,12 @@
         })
     }
 
-    window.startScan = startScan;
     window.addEventListener('message', event => {
         // IMPORTANT: check the origin of the data!
-        console.log('message', event)
+        alert('message')
         startScan();
     });
+    window.startScan = startScan;
 </script>
 
 </html>

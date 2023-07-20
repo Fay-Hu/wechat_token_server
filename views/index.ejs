@@ -3,6 +3,12 @@
   <head>
     <title><%= title %></title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script>
+      window.addEventListener('message', event => {
+        // IMPORTANT: check the origin of the data!
+        console.log('message', event)
+      });
+    </script>
   </head>
   <body>
     <h1><%= title %></h1>
