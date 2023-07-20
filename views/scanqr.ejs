@@ -12,6 +12,7 @@
 <body>
     <div class="container">
         <button id="scanqrbtn">点我扫码</button>
+        <iframe title="" id="iframe" src="http://auth.vidocube.com/"/>
     </div>
 </body>
 <script src="javascripts/jweixin-1.6.0.js"></script>
@@ -66,7 +67,7 @@
             alert('点击了扫码按钮！');
             startScan().then((result) => {
                 console.log('扫码结果: %o', result)
-                alert(result)
+                document.getElementById("iframe").postMessage(`scaneQr:result`, 'http://vidocube.com/test')
             }).catch((err) => {
                 console.log('扫码错误: %o', err)
                 alert(err)
@@ -74,11 +75,11 @@
         })
     }
 
-    window.addEventListener('message', event => {
-        // IMPORTANT: check the origin of the data!
-        alert('message')
-        startScan();
-    });
+    // window.addEventListener('message', event => {
+    //     // IMPORTANT: check the origin of the data!
+    //     alert('message')
+    //     startScan();
+    // });
     window.startScan = startScan;
 </script>
 
