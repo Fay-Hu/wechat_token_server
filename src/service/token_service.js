@@ -53,6 +53,7 @@ function getAccessToken(forceUpdate = false) {
  * @returns {Promise<AccessToken>}
  */
 function updateAccessToken() {
+    console.log(TOKEN())
     return new Promise((resolve, reject) => {
         let timestamp = new Date().getTime();
         axios.get(getAccessTokenUrl, {
