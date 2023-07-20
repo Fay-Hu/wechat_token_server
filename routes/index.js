@@ -11,7 +11,7 @@ router.get('/', function (req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/test2', function (req, res, next) {
+router.get('/test', function (req, res, next) {
   TokenService.getSignature('http://vidocube.com/test').then(data => {
     res.render('scanqr', data);
   }).catch(err => {

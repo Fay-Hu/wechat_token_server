@@ -18,7 +18,7 @@
 <script src="javascripts/jweixin-1.6.0.js"></script>
 <script>
     // import * as TOOLS from 'javascript/tools.js';
-    window.addEventListener('load', init);
+    // window.addEventListener('load', init);
 
     function configWX() {
         if (wx) {
@@ -63,6 +63,7 @@
     function init() {
         configWX();
         let btn = document.getElementById('scanqrbtn');
+        console.log(btn)
         btn.addEventListener('click', function () {
             alert('点击了扫码按钮！');
             startScan().then((result) => {
@@ -80,6 +81,7 @@
     //     alert('message')
     //     startScan();
     // });
+    init();
     window.startScan = startScan;
 </script>
 
